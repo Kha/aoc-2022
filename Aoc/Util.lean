@@ -1,8 +1,9 @@
 import Std.Data.HashMap
+import Std.Data.RBMap
 import Lean.Meta.Reduce
 open Std
 
-/-! # Type-guided parsing -/
+/-! ## Type-guided parsing -/
 
 class Parse (α : Type) where
   parse : String → α
@@ -24,7 +25,7 @@ instance [Parse α] [Parse β] [Inhabited α] [Inhabited β] : Parse (α × β) 
     let [a, b] := s.splitOn | panic! s!"prod split {s}"
     (Parse.parse a, Parse.parse b)
 
-/-! # Interactive setup -/
+/-! ## Interactive setup -/
 
 elab "get_filename" : term => do
   let fn := (← IO.getEnv "LEAN_FILENAME").getD (← Lean.MonadLog.getFileName)
@@ -42,7 +43,7 @@ macro "aoc" "(" id:ident ":" t:term ")" "=>" body:term : command => `(
   #eval main [get_filename |>.withExtension "ex" |>.toString]
   #eval main [get_filename |>.withExtension "input" |>.toString])
 
-/-! # Upstream? -/
+/-! ## Upstream? -/
 
 notation g "≫" f => f ∘ g
 def abs (n : Int) : Nat := Int.toNat <| if n < 0 then -n else n
@@ -97,3 +98,18 @@ def cardinals := #[#[1, 0, 0], #[-1, 0, 0], #[0, 1, 0], #[0, -1, 0], #[0, 0, 1],
 
 def Array.foldMap (f : α → Array β) (as : Array α) : Array β :=
   as.map f |>.foldl (· ++ ·) #[]
+
+def Stream.fold [Stream ρ α] (s : ρ) (f : β → α → β) (init : β) : β := Id.run do
+  let mut b := init
+  for a in s do
+    b := f b a
+  b
+
+class Collect (α β : Type) where
+  collect : α → β
+
+instance [Stream ρ α] : Collect ρ (Std.RBSet α cmp) where
+  collect s := Stream.fold s (·.insert) ∅
+
+def Stream.collect [ToStream α β] [Collect β γ] (a : α) : γ :=
+  Collect.collect (toStream a)
