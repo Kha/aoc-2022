@@ -6,7 +6,7 @@ open Std
 /-!
 ## Type-guided parsing
 
-No unsucessful or partial parses.
+No unsuccessful or partial parses.
 -/
 
 
@@ -41,10 +41,10 @@ elab "get_filename" : term => do
   Lean.Meta.mkAppM ``System.FilePath.mk #[Lean.mkStrLit fn]
 
 elab "reduced" e:term : term => do
-  Lean.Meta.reduce (← Lean.Elab.Term.elabTerm e none)
+  Lean.Meta.reduce (← Lean.Elab.Term.elabTerm e none) (skipTypes := false)
 
 macro "aoc" "(" id:ident ":" t:term ")" "=>" body:term : command => `(
-  def go := (fun ($id : reduced $t) => $body) ∘ Parse.parse
+  def go := (fun (__x : $t) => let $id : reduced $t := __x; $body) ∘ Parse.parse
   def main (args : List String) : IO Unit := do
     let input ← IO.FS.readFile ⟨args.head!⟩
     IO.println <| repr <| go input.trim
@@ -54,13 +54,8 @@ macro "aoc" "(" id:ident ":" t:term ")" "=>" body:term : command => `(
 
 /-! ## Upstream? -/
 
-notation g "≫" f => f ∘ g
 def abs (n : Int) : Nat := Int.toNat <| if n < 0 then -n else n
 def sgn (n : Int) : Int := if n > 0 then 1 else if n == 0 then 0 else -1
-def Array.sum [Add α] [OfNat α 0] (a : Array α) : α := a.foldl (· + ·) 0
-def Array.prod [Mul α] [OfNat α 1] (a : Array α) : α := a.foldl (· * ·) 1
-def Array.min (a : Array Nat) : Nat := a.foldl Min.min a[0]!
-def Array.max (a : Array Nat) : Nat := a.foldl Max.max 0
 
 partial def List.perms [DecidableEq α] : List α → List (List α)
   | [] => [[]]
@@ -101,12 +96,15 @@ def groupBy [Hashable β] [DecidableEq β] (f : α → β) (as : Array α) : Has
     map := map.insert b (map.findD b #[] |>.push a)
   map
 
-def dot [Add α] [Mul α] [OfNat α 0] (as bs : Array α) := as.zipWith bs Mul.mul |>.sum
-def cross (as bs : Array Int) := #[as[1]! * bs[2]! - as[2]! * bs[1]!, as[2]! * bs[0]! - as[0]! * bs[2]!, as[0]! * bs[1]! - as[1]! * bs[0]!]
-def cardinals := #[#[1, 0, 0], #[-1, 0, 0], #[0, 1, 0], #[0, -1, 0], #[0, 0, 1], #[0, 0, -1]]
+--def dot [Add α] [Mul α] [OfNat α 0] (as bs : Array α) := as.zipWith bs Mul.mul |>.sum
+--def cross (as bs : Array Int) := #[as[1]! * bs[2]! - as[2]! * bs[1]!, as[2]! * bs[0]! - as[0]! * bs[2]!, as[0]! * bs[1]! - as[1]! * bs[0]!]
+--def cardinals := #[#[1, 0, 0], #[-1, 0, 0], #[0, 1, 0], #[0, -1, 0], #[0, 0, 1], #[0, 0, -1]]
 
 def Array.foldMap (f : α → Array β) (as : Array α) : Array β :=
   as.map f |>.foldl (· ++ ·) #[]
+
+instance : Inhabited (Subarray α) where
+  default := #[].toSubarray
 
 def Stream.fold [Stream ρ α] (s : ρ) (f : β → α → β) (init : β) : β := Id.run do
   let mut b := init
@@ -120,5 +118,26 @@ class Collect (α β : Type) where
 instance [Stream ρ α] : Collect ρ (Std.RBSet α cmp) where
   collect s := Stream.fold s (·.insert) ∅
 
+instance [Stream ρ α] : Collect ρ (Array α) where
+  collect s := Stream.fold s (·.push) ∅
+
 def Stream.collect [ToStream α β] [Collect β γ] (a : α) : γ :=
   Collect.collect (toStream a)
+
+def Stream.toArray [ToStream α β] [Stream β γ] [Collect β (Array γ)] (a : α) : (Array γ) :=
+  Stream.collect a
+
+def Stream.sum [ToStream α β] [Stream β γ] [Add γ] [OfNat γ 0] (a : α) : γ :=
+  Stream.fold (toStream a) (· + ·) 0
+
+def Stream.prod [ToStream α β] [Stream β γ] [Mul γ] [OfNat γ 1] (a : α) : γ :=
+  Stream.fold (toStream a) (· * ·) 1
+
+def Stream.head! [ToStream α β] [Stream β γ] [Inhabited β] [Inhabited γ] (a : α) : γ :=
+  Stream.next? (toStream a) |>.get!.1
+
+def Stream.min! [ToStream α β] [Stream β γ] [Inhabited β] [Inhabited γ] [Min γ] (a : α) : γ :=
+  Stream.fold (toStream a) min (Stream.head! a)
+
+def Stream.max! [ToStream α β] [Stream β γ] [Inhabited β] [Inhabited γ] [Max γ] (a : α) : γ :=
+  Stream.fold (toStream a) max (Stream.head! a)

@@ -1,22 +1,25 @@
 import Aoc.Util
 
-aoc (lines : Lines (Char × Char)) =>
-  lines.map (fun (a, b) =>
-    -- opponent play, 0-2
-    let a := a.toNat - 'A'.toNat
-    -- response, 0-2
-    let b := b.toNat - 'X'.toNat
-    let shapeScore := b + 1
-    -- 0 = loss, 1 = draw, 2 = win
-    let outcome := (b + 4 - a) % 3
-    shapeScore + outcome * 3)
-  |>.sum
+open Stream (sum)
 
-aoc (lines : Lines (Char × Char)) =>
+/-! Encode shapes as `Fin 3` and compute answer using implicit modulo. -/
+def Shape (_base : Char) := Fin 3
+instance : Inhabited (Shape base) := inferInstanceAs (Inhabited (Fin 3))
+instance : Parse (Shape base) where
+  parse s := .ofNat <| (Parse.parse s : Char).toNat - base.toNat
+
+aoc (lines : Lines (Shape 'A' × Shape 'X')) =>
+  lines.map (fun (a, b) =>
+    let shapeScore := b.val + 1
+    -- 0 = loss, 1 = draw, 2 = win
+    let outcome := b - a
+    shapeScore + outcome.val * 3)
+  |> sum
+
+aoc (lines : Lines (Shape 'A' × Shape 'X')) =>
   lines.map (fun (a, outcome) =>
-    let a := a.toNat - 'A'.toNat
-    let outcome := outcome.toNat - 'X'.toNat
-    let b := (a + (outcome+2)) % 3
-    let shapeScore := b + 1
-    shapeScore + outcome * 3)
-  |>.sum
+    -- 2 = win, remember?
+    let b := a + (outcome+2)
+    let shapeScore := b.val + 1
+    shapeScore + outcome.val * 3)
+  |> sum
