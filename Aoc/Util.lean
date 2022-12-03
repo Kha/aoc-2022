@@ -106,9 +106,12 @@ def Array.foldMap (f : α → Array β) (as : Array α) : Array β :=
 instance : Inhabited (Subarray α) where
   default := #[].toSubarray
 
-def Stream.fold [Stream ρ α] (s : ρ) (f : β → α → β) (init : β) : β := Id.run do
+instance [Stream ρ α] : ToStream ρ ρ where
+  toStream s := s
+
+def Stream.fold [ToStream ρ ρ'] [Stream ρ' α] (s : ρ) (f : β → α → β) (init : β) : β := Id.run do
   let mut b := init
-  for a in s do
+  for a in toStream s do
     b := f b a
   b
 
@@ -128,16 +131,16 @@ def Stream.toArray [ToStream α β] [Stream β γ] [Collect β (Array γ)] (a : 
   Stream.collect a
 
 def Stream.sum [ToStream α β] [Stream β γ] [Add γ] [OfNat γ 0] (a : α) : γ :=
-  Stream.fold (toStream a) (· + ·) 0
+  Stream.fold a (· + ·) 0
 
 def Stream.prod [ToStream α β] [Stream β γ] [Mul γ] [OfNat γ 1] (a : α) : γ :=
-  Stream.fold (toStream a) (· * ·) 1
+  Stream.fold a (· * ·) 1
 
 def Stream.head! [ToStream α β] [Stream β γ] [Inhabited β] [Inhabited γ] (a : α) : γ :=
   Stream.next? (toStream a) |>.get!.1
 
 def Stream.min! [ToStream α β] [Stream β γ] [Inhabited β] [Inhabited γ] [Min γ] (a : α) : γ :=
-  Stream.fold (toStream a) min (Stream.head! a)
+  Stream.fold a min (Stream.head! a)
 
 def Stream.max! [ToStream α β] [Stream β γ] [Inhabited β] [Inhabited γ] [Max γ] (a : α) : γ :=
-  Stream.fold (toStream a) max (Stream.head! a)
+  Stream.fold a max (Stream.head! a)
