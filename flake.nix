@@ -29,7 +29,7 @@
       };
     in {
       packages = pkg // (with leanPkgs.nixpkgs; rec {
-        inherit (leanPkgs) lean;
+        inherit (leanPkgs) lean ciShell;
         renders = lean-doc.renderPackage pkg;
 
         book = stdenv.mkDerivation {
