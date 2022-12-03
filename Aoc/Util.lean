@@ -3,7 +3,12 @@ import Std.Data.RBMap
 import Lean.Meta.Reduce
 open Std
 
-/-! ## Type-guided parsing -/
+/-!
+## Type-guided parsing
+
+No unsucessful or partial parses.
+-/
+
 
 class Parse (α : Type) where
   parse : String → α
@@ -25,7 +30,11 @@ instance [Parse α] [Parse β] [Inhabited α] [Inhabited β] : Parse (α × β) 
     let [a, b] := s.splitOn | panic! s!"prod split {s}"
     (Parse.parse a, Parse.parse b)
 
-/-! ## Interactive setup -/
+/-!
+## Interactive setup
+
+Infer input files from current filename and run given expression after parsing.
+-/
 
 elab "get_filename" : term => do
   let fn := (← IO.getEnv "LEAN_FILENAME").getD (← Lean.MonadLog.getFileName)

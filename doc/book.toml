@@ -3,7 +3,7 @@ authors = ["Sebastian Ullrich"]
 language = "en"
 multilingual = false
 src = "."
-title = "Advent of Code 2022"
+title = "Advent of Code 2022 in Lean 4"
 
 [build]
 build-dir = "out"
