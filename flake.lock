@@ -1,5 +1,22 @@
 {
   "nodes": {
+    "alectryon": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1654613606,
+        "narHash": "sha256-IGCn1PzTyw8rrwmyWUiw3Jo/dyZVGkMslnHYW7YB8yk=",
+        "owner": "Kha",
+        "repo": "alectryon",
+        "rev": "c3b16f650665745e1da4ddfcc048d3bd639f71d5",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Kha",
+        "ref": "typeid",
+        "repo": "alectryon",
+        "type": "github"
+      }
+    },
     "flake-utils": {
       "locked": {
         "lastModified": 1667395993,
@@ -38,14 +55,43 @@
         "nixpkgs": "nixpkgs_2"
       },
       "locked": {
-        "lastModified": 1670073211,
-        "narHash": "sha256-XWp2gzyc/DpvdGrAaeTx9n/6WCLSUG8KZov6fRwF9n8=",
+        "lastModified": 1670076857,
+        "narHash": "sha256-XXXTweu9EeRFt/Uw4tQee40huHtRF4mnnnsUgvWaAxU=",
         "owner": "leanprover",
         "repo": "lean4",
-        "rev": "ed3fa3734149f3375b2d15a8a544a7c55c2963dd",
+        "rev": "768ef310a016d8f4f99aa0f170bc43e18922ea38",
         "type": "github"
       },
       "original": {
+        "owner": "leanprover",
+        "repo": "lean4",
+        "type": "github"
+      }
+    },
+    "lean-doc": {
+      "inputs": {
+        "alectryon": "alectryon",
+        "flake-utils": [
+          "lean",
+          "flake-utils"
+        ],
+        "lean": [
+          "lean"
+        ],
+        "leanInk": "leanInk",
+        "mdBook": "mdBook"
+      },
+      "locked": {
+        "dir": "doc",
+        "lastModified": 1670076857,
+        "narHash": "sha256-XXXTweu9EeRFt/Uw4tQee40huHtRF4mnnnsUgvWaAxU=",
+        "owner": "leanprover",
+        "repo": "lean4",
+        "rev": "768ef310a016d8f4f99aa0f170bc43e18922ea38",
+        "type": "github"
+      },
+      "original": {
+        "dir": "doc",
         "owner": "leanprover",
         "repo": "lean4",
         "type": "github"
@@ -67,6 +113,22 @@
         "type": "github"
       }
     },
+    "leanInk": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1666154782,
+        "narHash": "sha256-0ELqEca6jZT4BW/mqkDD+uYuxW5QlZUFlNwZkvugsg8=",
+        "owner": "digama0",
+        "repo": "LeanInk",
+        "rev": "12a2aec9b5f4aa84e84fb01a9af1da00d8aaff4e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "leanprover",
+        "repo": "LeanInk",
+        "type": "github"
+      }
+    },
     "lowdown-src": {
       "flake": false,
       "locked": {
@@ -80,6 +142,22 @@
       "original": {
         "owner": "kristapsdz",
         "repo": "lowdown",
+        "type": "github"
+      }
+    },
+    "mdBook": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1660074464,
+        "narHash": "sha256-W30G7AeWBjdJE/CQZJU5vJjaDGZtpmxEKNMEvaYtuF8=",
+        "owner": "leanprover",
+        "repo": "mdBook",
+        "rev": "9321c10c502cd59eea8afc4325a84eab3ddf9391",
+        "type": "github"
+      },
+      "original": {
+        "owner": "leanprover",
+        "repo": "mdBook",
         "type": "github"
       }
     },
@@ -155,6 +233,7 @@
       "inputs": {
         "flake-utils": "flake-utils",
         "lean": "lean",
+        "lean-doc": "lean-doc",
         "std4": "std4"
       }
     },

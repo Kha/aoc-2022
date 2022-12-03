@@ -27,7 +27,7 @@ instance [Parse α] [Parse β] [Inhabited α] [Inhabited β] : Parse (α × β) 
 /-! # Interactive setup -/
 
 elab "get_filename" : term => do
-  let fn ← Lean.MonadLog.getFileName
+  let fn := (← IO.getEnv "LEAN_FILENAME").getD (← Lean.MonadLog.getFileName)
   Lean.Meta.mkAppM ``System.FilePath.mk #[Lean.mkStrLit fn]
 
 elab "reduced" e:term : term => do

@@ -1,0 +1,15 @@
+[book]
+authors = ["Sebastian Ullrich"]
+language = "en"
+multilingual = false
+src = "."
+title = "Advent of Code 2022"
+
+[build]
+build-dir = "out"
+
+[output.html]
+git-repository-url = "https://github.com/Kha/aoc-2022"
+additional-css = ["alectryon.css", "pygments.css"]
+additional-js = ["alectryon.js"]
+site-url = "/aoc-2022/"
