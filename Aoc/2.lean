@@ -8,7 +8,7 @@ instance : Inhabited (Shape base) := inferInstanceAs (Inhabited (Fin 3))
 instance : Parse (Shape base) where
   parse s := .ofNat <| (Parse.parse s : Char).toNat - base.toNat
 
-aoc (lines : Lines (Shape 'A' × Shape 'X')) =>
+aoc (lines : Lines (Pair (Shape 'A') " " (Shape 'X'))) =>
   lines.map (fun (a, b) =>
     let shapeScore := b.val + 1
     -- 0 = loss, 1 = draw, 2 = win
@@ -16,7 +16,7 @@ aoc (lines : Lines (Shape 'A' × Shape 'X')) =>
     shapeScore + outcome.val * 3)
   |> sum
 
-aoc (lines : Lines (Shape 'A' × Shape 'X')) =>
+aoc (lines : Lines (Pair (Shape 'A') " " (Shape 'X'))) =>
   lines.map (fun (a, outcome) =>
     -- 2 = win, remember?
     let b := a + (outcome+2)

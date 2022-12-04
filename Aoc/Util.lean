@@ -25,9 +25,13 @@ instance [Parse α] : Parse (Split sep α) where
   parse s := s.splitOn sep |>.toArray.map Parse.parse
 abbrev Lines := Split "\n"
 
-instance [Parse α] [Parse β] [Inhabited α] [Inhabited β] : Parse (α × β) where
+def Pair (α : Type) (_sep : String) (β : Type) := α × β
+instance [Inhabited α] [Inhabited β] : Inhabited (Pair α sep β) :=
+  inferInstanceAs (Inhabited (α × β))
+
+instance [Parse α] [Parse β] [Inhabited α] [Inhabited β] : Parse (Pair α sep β) where
   parse s := Id.run do
-    let [a, b] := s.splitOn | panic! s!"prod split {s}"
+    let [a, b] := s.splitOn sep | panic! s!"prod split {s}"
     (Parse.parse a, Parse.parse b)
 
 /-!
@@ -144,3 +148,35 @@ def Stream.min! [ToStream α β] [Stream β γ] [Inhabited β] [Inhabited γ] [M
 
 def Stream.max! [ToStream α β] [Stream β γ] [Inhabited β] [Inhabited γ] [Max γ] (a : α) : γ :=
   Stream.fold a max (Stream.head! a)
+
+structure RangeInclusive (α : Type) where
+  start : α
+  stop : α
+
+namespace RangeInclusive
+
+infix:10 "..=" => RangeInclusive.mk
+
+instance [Inhabited α] : Inhabited (RangeInclusive α) where
+  default := default..=default
+
+instance [Repr α] : Repr (RangeInclusive α) where
+  reprPrec r _ := s!"{repr r.start}..={repr r.stop}"
+
+variable [LE α] [DecidableRel (@LE.le α _)]
+
+def subset (r1 r2 : RangeInclusive α) : Bool :=
+  r1.start >= r2.start && r1.stop <= r2.stop
+
+def contains (r1 : RangeInclusive α) (a : α) : Bool :=
+  r1.start <= a && a <= r1.stop
+
+def overlaps (r1 r2 : RangeInclusive α) : Bool :=
+  r1.contains r2.start || r1.contains r2.stop || r1.subset r2
+
+end RangeInclusive
+
+instance [Parse α] [Inhabited α] : Parse (RangeInclusive α) where
+  parse s := Id.run do
+    let [a, b] := s.splitOn "-" | unreachable!
+    Parse.parse a..=Parse.parse b
