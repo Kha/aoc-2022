@@ -23,7 +23,10 @@ instance : Parse Char where
 def Split (_sep : String) (α : Type) := Array α
 instance [Parse α] : Parse (Split sep α) where
   parse s := s.splitOn sep |>.toArray.map Parse.parse
+instance : Inhabited (Split sep α) where
+  default := #[]
 abbrev Lines := Split "\n"
+abbrev Words := Split " " String
 
 def Pair (α : Type) (_sep : String) (β : Type) := α × β
 instance [Inhabited α] [Inhabited β] : Inhabited (Pair α sep β) :=
@@ -51,7 +54,7 @@ macro "aoc" "(" id:ident ":" t:term ")" "=>" body:term : command => `(
   def go := (fun (__x : $t) => let $id : reduced $t := __x; $body) ∘ Parse.parse
   def main (args : List String) : IO Unit := do
     let input ← IO.FS.readFile ⟨args.head!⟩
-    IO.println <| repr <| go input.trim
+    IO.println <| repr <| go input.trimRight
 
   #eval main [get_filename |>.withExtension "ex" |>.toString]
   #eval main [get_filename |>.withExtension "input" |>.toString])
