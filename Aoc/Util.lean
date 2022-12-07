@@ -57,7 +57,8 @@ macro "aoc" "(" id:ident ":" t:term ")" "=>" body:term : command => `(
     IO.println <| repr <| go input.trimRight
 
   #eval main [get_filename |>.withExtension "ex" |>.toString]
-  #eval main [get_filename |>.withExtension "input" |>.toString])
+  #eval main [get_filename |>.withExtension "input" |>.toString]
+)
 
 /-! ## Upstream? -/
 
