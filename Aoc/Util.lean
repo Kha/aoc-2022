@@ -94,7 +94,6 @@ instance [Sub α] : Sub (Array α) where
 instance [Mul α] : HMul α (Array α) (Array α) where
   hMul a bs := bs.map (a * ·)
 
-def sqrLen (p : Array Int) := p[0]! * p[0]! + p[1]! * p[1]! + p[2]! * p[2]!
 def manhattan (p : Array Int) := abs p[0]! + abs p[1]! + abs p[2]!
 
 def groupBy [Hashable β] [DecidableEq β] (f : α → β) (as : Array α) : HashMap β (Array α) := Id.run do
