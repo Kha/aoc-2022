@@ -22,7 +22,7 @@ instance : Parse Char where
 
 def Split (_sep : String) (α : Type) := Array α
 instance [Parse α] : Parse (Split sep α) where
-  parse s := s.splitOn sep |>.toArray.map Parse.parse
+  parse s := s.splitOn sep |>.filter (· != "") |>.toArray.map Parse.parse
 instance : Inhabited (Split sep α) where
   default := #[]
 abbrev Lines := Split "\n"
@@ -130,6 +130,9 @@ instance [Stream ρ α] : Collect ρ (Std.RBSet α cmp) where
 
 instance [Stream ρ α] : Collect ρ (Array α) where
   collect s := Stream.fold s (·.push) ∅
+
+instance [Stream ρ α] : Collect ρ (List α) where
+  collect s := Stream.fold s (fun as a => a :: as) ∅ |>.reverse
 
 def Stream.collect [ToStream α β] [Collect β γ] (a : α) : γ :=
   Collect.collect (toStream a)
