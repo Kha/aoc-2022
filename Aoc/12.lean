@@ -27,14 +27,15 @@ end Stream
 
 def cardinals := #[(1, 0), (0, -1), (-1, 0), (0, 1)]
 
-instance [Coe α β] : Coe (α × α) (β × β) where
-  coe := fun (a, b) => (a, b)
+instance [Inhabited α] : GetElem (Array (Array α)) (Int × Int) α
+    (fun m (x, y) => 0 <= y && y < m.size && 0 <= x && x < m[y.toNat]!.size) where
+  getElem := fun m (x, y) _ => m[y.toNat]![x.toNat]!
 
 aoc (input : Lines String) => Id.run do
   let input := input.map toArray
   let .some s := indexed input |> findSome? fun (line, y) =>
     indexed line |> findSome? fun
-      | ('S', x) => some (x, y)
+      | ('S', x) => some (Int.ofNat x, Int.ofNat y)
       | _ => none
     | unreachable!
   let _ := @lexOrd
@@ -42,20 +43,17 @@ aoc (input : Lines String) => Id.run do
   let mut r := input.map (·.map (fun _ => none))
   while !q.isEmpty do
     let (w, p) := q.min!
-    let c := input[p.2]![p.1]!
+    let c := input[p]!
     if c == 'E' then
       return some w
     let c := if c == 'S' then 'a' else c
-    r := r.modify p.2 (·.set! p.1 (some w))
+    r := r.modify p.2.toNat (·.set! p.1.toNat (some w))
     q := q.erase (compare (w, p))
     for d in cardinals do
       let p' := p + d
-      if p'.1 >= 0 && p'.1 < input[0]!.size &&
-         p'.2 >= 0 && p'.2 < input.size then
-        let p' := (p'.1.toNat, p'.2.toNat)
-        let c' := input[p'.2]![p'.1]!
+      if let some c' := input[p']? then
         let c' := if c' == 'E' then 'z' else c'
-        if let none := r[p'.2]![p'.1]! then
+        if let none := r[p']! then
           if c'.toNat - c.toNat <= 1 then
             q := q.insert (w + 1, p')
   none
@@ -64,28 +62,25 @@ aoc (input : Lines String) => Id.run do
   let input := input.map toArray
   let starts := indexed input |> toArray |>.concatMap fun (line, y) =>
     indexed line |> toArray |>.filterMap fun
-      | ('S', x) => some (x, y)
-      | ('a', x) => some (x, y)
+      | ('S', x) => some (Int.ofNat x, Int.ofNat y)
+      | ('a', x) => some (Int.ofNat x, Int.ofNat y)
       | _ => none
   let _ := @lexOrd
-  let mut q : Std.RBSet (Nat × (Nat × Nat)) compare := collect (starts.map (0, ·))
+  let mut q : Std.RBSet (Nat × (Int × Int)) compare := collect (starts.map (0, ·))
   let mut r := input.map (·.map (fun _ => none))
   while !q.isEmpty do
     let (w, p) := q.min!
-    let c := input[p.2]![p.1]!
+    let c := input[p]!
     if c == 'E' then
       return some w
     let c := if c == 'S' then 'a' else c
-    r := r.modify p.2 (·.set! p.1 (some w))
+    r := r.modify p.2.toNat (·.set! p.1.toNat (some w))
     q := q.erase (compare (w, p))
     for d in cardinals do
       let p' := p + d
-      if p'.1 >= 0 && p'.1 < input[0]!.size &&
-         p'.2 >= 0 && p'.2 < input.size then
-        let p' := (p'.1.toNat, p'.2.toNat)
-        let c' := input[p'.2]![p'.1]!
+      if let some c' := input[p']? then
         let c' := if c' == 'E' then 'z' else c'
-        if let none := r[p'.2]![p'.1]! then
+        if let none := r[p']! then
           if c'.toNat - c.toNat <= 1 then
             q := q.insert (w + 1, p')
   none
