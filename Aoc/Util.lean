@@ -186,3 +186,16 @@ instance [Parse α] [Inhabited α] : Parse (RangeInclusive α) where
   parse s := Id.run do
     let [a, b] := s.splitOn "-" | unreachable!
     Parse.parse a..=Parse.parse b
+
+instance [Add α] : Add (α × α) where
+  add a b := (a.1 + b.1, a.2 + b.2)
+
+instance [Sub α] : Sub (α × α) where
+  sub a b := (a.1 - b.1, a.2 - b.2)
+
+instance [HDiv α β γ] : HDiv (α × α) β (γ × γ) where
+  hDiv a b := (a.1 / b, a.2 / b)
+
+def sqrLen (p : Int × Int) : Int := p.1 * p.1 + p.2 * p.2
+
+def clamp (low high i : Int) : Int := max low (min high i)
