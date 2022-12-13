@@ -199,3 +199,26 @@ instance [HDiv α β γ] : HDiv (α × α) β (γ × γ) where
 def sqrLen (p : Int × Int) : Int := p.1 * p.1 + p.2 * p.2
 
 def clamp (low high i : Int) : Int := max low (min high i)
+
+namespace Stream
+
+structure Indexed (ρ : Type) where
+  s : ρ
+  i : Nat
+
+def indexed [ToStream α ρ] (s : α) : Indexed ρ := ⟨toStream s, 0⟩
+
+instance [Stream ρ α] : Stream (Indexed ρ) (α × Nat) where
+  next? i := next? i.s |>.map fun (a, s') => ((a, i.i), ⟨s', i.i + 1⟩)
+
+def findSomeM? [Stream ρ α] [Monad m] (f : α → m (Option β)) (s : ρ) : m (Option β) := do
+  for a in s do
+    match (← f a) with
+    | some b => return b
+    | _      => pure ⟨⟩
+  return none
+
+def findSome? [Stream ρ α] (p : α → Option β) (s : ρ) : Option β :=
+  findSomeM? p s |> Id.run
+
+end Stream

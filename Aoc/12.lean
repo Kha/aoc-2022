@@ -2,29 +2,6 @@ import Aoc.Util
 
 open Stream
 
-namespace Stream
-
-structure Indexed (ρ : Type) where
-  s : ρ
-  i : Nat
-
-def indexed [ToStream α ρ] (s : α) : Indexed ρ := ⟨toStream s, 0⟩
-
-instance [Stream ρ α] : Stream (Indexed ρ) (α × Nat) where
-  next? i := next? i.s |>.map fun (a, s') => ((a, i.i), ⟨s', i.i + 1⟩)
-
-def findSomeM? [Stream ρ α] [Monad m] (f : α → m (Option β)) (s : ρ) : m (Option β) := do
-  for a in s do
-    match (← f a) with
-    | some b => return b
-    | _      => pure ⟨⟩
-  return none
-
-def findSome? [Stream ρ α] (p : α → Option β) (s : ρ) : Option β :=
-  findSomeM? p s |> Id.run
-
-end Stream
-
 def cardinals := #[(1, 0), (0, -1), (-1, 0), (0, 1)]
 
 instance [Inhabited α] : GetElem (Array (Array α)) (Int × Int) α
