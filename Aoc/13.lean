@@ -12,10 +12,10 @@ instance : ToString Packet where
   toString p := repr p |> toString
 
 partial def Packet.parse (env : Lean.Environment) (s : String) : Packet :=
-  go (Lean.Parser.runParserCategory env `term s |>.toOption.get! |> Lean.TSyntax.mk)
-where go : Lean.Term → Packet
+  elaborate (Lean.Parser.runParserCategory env `term s |>.toOption.get! |> Lean.TSyntax.mk)
+where elaborate : Lean.Term → Packet
   | `($n:num) => .nat n.getNat
-  | `([$ps,*]) => .list (ps.getElems.toList.map go)
+  | `([$ps,*]) => .list (ps.getElems.toList.map elaborate)
   | _ => unreachable!
 
 protected partial def Packet.compare : Packet → Packet → Ordering
