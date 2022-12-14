@@ -222,3 +222,7 @@ def findSome? [Stream ρ α] (p : α → Option β) (s : ρ) : Option β :=
   findSomeM? p s |> Id.run
 
 end Stream
+
+instance [Inhabited α] : GetElem (Array (Array α)) (Int × Int) α
+    (fun m (x, y) => 0 <= y && y < m.size && 0 <= x && x < m[y.toNat]!.size) where
+  getElem := fun m (x, y) _ => m[y.toNat]![x.toNat]!

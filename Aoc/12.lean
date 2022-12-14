@@ -4,10 +4,6 @@ open Stream
 
 def cardinals := #[(1, 0), (0, -1), (-1, 0), (0, 1)]
 
-instance [Inhabited α] : GetElem (Array (Array α)) (Int × Int) α
-    (fun m (x, y) => 0 <= y && y < m.size && 0 <= x && x < m[y.toNat]!.size) where
-  getElem := fun m (x, y) _ => m[y.toNat]![x.toNat]!
-
 aoc (input : Lines String) => Id.run do
   let input := input.map toArray
   let .some s := indexed input |> findSome? fun (line, y) =>
